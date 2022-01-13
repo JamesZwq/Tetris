@@ -12,9 +12,8 @@ int **creat_2d_array(int row, int col){
     return array;
 }
 
-void free_2d_array(int **array){
-    for(int i = 0; array[i]; i++){
-        printf("%d\n", i);
+void free_2d_array(int **array, int row){
+    for(int i = 0; i < row; i++){
         free(array[i]);
     }
     free(array);

@@ -15,8 +15,8 @@ Block new_block(){
 }
 
 void free_block(Block block){
-    free_2d_array(block->blo);
-    free_2d_array(block->location);
+    free_2d_array(block->blo, max_tetris_size);
+    free_2d_array(block->location, max_tetris_size);
     free(block);
 }
 

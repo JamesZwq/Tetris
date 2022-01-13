@@ -4,6 +4,6 @@
 
 int **creat_2d_array(int row, int col);
 
-void free_2d_array(int **array);
+void free_2d_array(int **array, int row);
 
 #endif // HELPER_H

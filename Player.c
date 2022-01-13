@@ -86,7 +86,7 @@ Player new_player_info(){
 }
 
 void free_player_info(Player user_info){
-    free_2d_array(user_info->Map);
+    free_2d_array(user_info->Map, max_r);
     free_block(user_info->next_block);
     free_block(user_info->current_block);
     free(user_info);
