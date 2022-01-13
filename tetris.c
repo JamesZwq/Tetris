@@ -17,6 +17,8 @@ struct info {
     int     max_score;
     int     **Map;
     int     **next_block;
+    int     **current_block;
+    int     **current_block_location;
     char    name;
 };
 
@@ -24,24 +26,22 @@ struct info {
 
 int **creat_map();
 void print_map(Info user_info); 
-void creat_block(Info user_info);
+int **creat_block();
 void free_info(Info user_info);
 Info new_player_info();
 void print_next_block(Info user_info);
-void change_block(Info user_info);
+void change_block(Info user_info, int type);
+int **creat_2d_array(int row, int col);
 
 
 int main(void){
     Info user_info = new_player_info();
 
-    srand(time(NULL));
+    srand(time(NULL)); //reset the random
     print_map(user_info);
-    creat_block(user_info);
-    print_next_block(user_info);
-
-    creat_block(user_info);
-    print_next_block(user_info);
-
+    change_block(user_info,1);
+    //print_next_block(user_info);
+    printf("\n");
     free_info(user_info);
 }
 
@@ -61,10 +61,7 @@ void print_map(Info user_info){
 }
 
 int **creat_map(){
-    int **Map = malloc(max_r*sizeof(int *));
-    for(int i = 0; i < max_r; i++){
-        Map[i] = malloc(sizeof(int*) * max_c);
-    }
+    int **Map = creat_2d_array(max_r, max_c);
     for(int i = 0; i < max_r; i++){
         if (i == 0){
             for(int j = 0; j < max_c; j++){
@@ -99,11 +96,15 @@ Info new_player_info(){
     scanf("%c", &user_name);
     user_info->name = user_name;
     user_info->Map = creat_map();
-    user_info->next_block = NULL;
+    user_info->next_block = creat_block();
+    user_info->current_block = creat_block();
+    change_block(user_info,1); //set block
+    change_block(user_info,2);
     return user_info;
 }
 
 void free_info(Info user_info){
+
     for (int j = 0; j < max_c; j++){
         free(user_info->Map[j]);
     }
@@ -114,20 +115,24 @@ void free_info(Info user_info){
     }
     free(user_info->next_block);
 
+    for (int i = 0; i < max_tetris_size; i++){
+        free(user_info->current_block[i]);
+    }
+    free(user_info->current_block);
+
     free(user_info);
 }
 
-void creat_block(Info user_info){
-    int **block = malloc(max_tetris_size * sizeof(int **));
-    for(int i = 0; i < max_tetris_size; i++){
-        block[i] = malloc(sizeof(int*) * max_tetris_size);
+int **creat_block(){
+    return creat_2d_array(max_tetris_size, max_tetris_size);
+}
+
+int **creat_2d_array(int row, int col){
+    int **array = (int **)malloc(row * sizeof(int *));
+    for(int i = 0; i < row; i++){
+        array[i] = (int *)malloc(col * sizeof(int));
     }
-    for(int i = 0; i < max_tetris_size; i++){
-        for(int j = 0; j < max_tetris_size; j++){
-            block[i][j] = 0;
-        }
-    }
-    change_block(user_info);
+    return array;
 }
 
 void print_next_block(Info user_info){
@@ -139,12 +144,18 @@ void print_next_block(Info user_info){
     }
 }
 
-void change_block(Info user_info){
-    int **block = user_info->next_block;
+void change_block(Info user_info, int type){
+    /*
+    type = 1, change to next block
+    type = 2, change to current block
+    */
+    int **block = type == 1 ? user_info->next_block : user_info->current_block;
     int block_type = rand() % 7;
-    printf("112312123122\n");
-    printf("block_type: %d\n", block_type);
-    printf("123123");
+    for(int i = 0; i < max_tetris_size; i++){
+        for(int j = 0; j < max_tetris_size; j++){
+            block[i][j] = 0;
+        }
+    }
     if (block_type == 0){
         block[0][0] = 1;
         block[0][1] = 1;
@@ -153,48 +164,44 @@ void change_block(Info user_info){
     }
     else 
     if (block_type == 1){
-        block[0][1] = 1;
-        block[0][2] = 1;//S
-        block[1][1] = 1;
-        block[1][2] = 1;
+        block[0][1] = block_color;
+        block[0][2] = block_color;//O
+        block[1][1] = block_color;
+        block[1][2] = block_color;
     }
     else 
     if (block_type == 2){
-        block[0][0] = 1;
-        block[0][1] = 1;
-        block[0][2] = 1;
-        block[0][1] = 1;//J
+        block[0][0] = block_color;
+        block[0][1] = block_color;
+        block[0][2] = block_color;
+        block[1][0] = block_color;//J
     }
     else
     if (block_type == 3){
-        block[0][0] = 1;
-        block[0][1] = 1;
-        block[0][2] = 1;
-        block[1][2] = 1;//L
+        block[0][0] = block_color;
+        block[0][1] = block_color;
+        block[0][2] = block_color;
+        block[1][2] = block_color;//L
     }
     else
     if (block_type == 4){
-        block[0][0] = 1;
-        block[0][1] = 1;
-        block[1][0] = 1;
-        block[1][1] = 1;//O
+        block[0][0] = block_color;
+        block[0][1] = block_color;
+        block[0][2] = block_color;
+        block[1][1] = block_color;//O
     }
     else
     if (block_type == 5){
-        block[0][0] = 1;
-        block[0][1] = 1;
-        block[1][0] = 1;
-        block[1][1] = 1;
-        block[1][2] = 1;//T
+        block[0][0] = block_color;
+        block[0][1] = block_color;
+        block[1][1] = block_color;
+        block[1][2] = block_color;//T
     }
     else
     if (block_type == 6){
-        block[0][0] = 1;
         block[0][1] = 1;
+        block[0][2] = 1;
         block[1][0] = 1;
-        block[1][1] = 1;
-        block[1][2] = 1;
-        block[2][0] = 1;
-        block[2][1] = 1;//Z
+        block[1][1] = 1;//Z
     }
 }
